@@ -1,7 +1,7 @@
 import torch
 
 w = torch.tensor(1.0, requires_grad=True)   # requires_grad=True 하면 w.grad 에 gradient 가 자동저장된다.
-                                            # element 가 float 이어야 한다.
+                                            # 단, 사용하려면 element 가 float 이어야 한다.
 
 a = w*3
 l = a**2
@@ -21,4 +21,4 @@ t.backward()
 print('x grad : \n', x.grad)
 print('y grad : \n', y.grad)
 
-# affine 자동 미분 아주 편리하군..
+# DL1 과 ML 에서 다루었던 affine 자동 미분 아주 편리.

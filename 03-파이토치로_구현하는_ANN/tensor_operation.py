@@ -15,13 +15,13 @@ print("b:", b)
 print()
 
 
-wx = torch.mm(w,x) # (5,3) * (3,2) = (5,2)
+wx = torch.mm(w,x) # (5,3) * (3,2) = (5,2)  # dtype 은 float 이어야함. (묵시적 변환 O)
 print("wx size:", wx.size())
 print("wx:", wx)
 print()
 
 
-result = wx + b    # broadcast
+result = wx + b
 print("result size:", result.size()) 
 print("result:", result) 
 print()
