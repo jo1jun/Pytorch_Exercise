@@ -87,7 +87,7 @@ print('Before Training, test loss is {}'.format(test_loss_before.item()))   # .i
 
 for epoch in range(epochs):
     model.train()   # 훈련 모드.
-    optimizer.zero_grad()   # epoch 마다 new gradient 계산할 것이므로 gradient 를 0으로 초기
+    optimizer.zero_grad()   # epoch 마다 new gradient 계산할 것이므로 gradient 를 0으로 초기화
     train_output = model(x_train)   # forward
     train_loss = criterion(train_output.squeeze(), y_train)
     if epoch % 100 == 0:

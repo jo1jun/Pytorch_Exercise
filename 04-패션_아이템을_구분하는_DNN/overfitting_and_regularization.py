@@ -22,11 +22,12 @@ train_loader = torch.utils.data.DataLoader(
                    train=True,
                    download=True,
                    transform=transforms.Compose([
-                       transforms.RandomHorizontalFlip(),           # 랜덤하게 왼쪽 오른쪽 뒤집기
-                       transforms.ToTensor(),
+                       transforms.RandomHorizontalFlip(),           # 이미지들을 p 의 확률로 왼쪽 오른쪽을 뒤집는다. (default : p = 0.5)
+                       transforms.ToTensor(),                       
                        transforms.Normalize((0.1307,), (0.3081,))   # 평균과 표준편차로 normalize
                    ])),
     batch_size=BATCH_SIZE, shuffle=True)
+
 test_loader = torch.utils.data.DataLoader(
     datasets.FashionMNIST('./.data',
                    train=False, 
@@ -57,8 +58,8 @@ class Net(nn.Module):
         x = x.view(-1, 784)
         x = F.relu(self.fc1(x))
         # 드롭아웃 추가
-        x = F.dropout(x, training=self.training,
-                      p=self.dropout_p)
+        x = F.dropout(x, training=self.training, # dropout는 가중치가 없는 layer. 따라서 F.dropout 사용 / self.training : 학습인지를 알려주는 parameter
+                      p=self.dropout_p)          # nn.Dropout 은 내부적으로 F.dropout 호출, self.traing 등 몇가지 내부 변수 자동 적용
         x = F.relu(self.fc2(x))
         # 드롭아웃 추가
         x = F.dropout(x, training=self.training,
@@ -90,10 +91,9 @@ def train(model, train_loader, optimizer):
         loss.backward()
         optimizer.step()
 
-
 # ## 테스트하기
 def evaluate(model, test_loader):
-    model.eval()
+    model.eval()                            # F.dropout() 는 학습 모드, 평가 모드 동작이 달라진다. 평가모드에서는 모든 뉴런 사용하므로 반드시 모드전환.
     test_loss = 0
     correct = 0
     with torch.no_grad():

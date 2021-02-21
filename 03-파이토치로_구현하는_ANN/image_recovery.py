@@ -34,7 +34,7 @@ def weird_function(x, n_iter=5):
 
 # 가설과 오염된 이미지 사이의 거리를 계산.
 def distance_loss(hypothesis, broken_image):    
-    return torch.dist(hypothesis, broken_image)         # default 로 2차 norm distance return.
+    return torch.dist(hypothesis, broken_image)                 # default 로 2차 norm distance return.
 
 
 random_tensor = torch.randn(10000, dtype = torch.float)
@@ -42,15 +42,15 @@ random_tensor = torch.randn(10000, dtype = torch.float)
 
 lr = 0.8
 for i in range(0,20000):
-    random_tensor.requires_grad_(True)                  # random_tensor.grad 에 gradient 저장.
+    random_tensor.requires_grad_(True)                          # random_tensor.grad 에 gradient 저장.
     hypothesis = weird_function(random_tensor)
     loss = distance_loss(hypothesis, broken_image)
     loss.backward()
-    with torch.no_grad():                               # 계산그래프를 생성하지 않고 값을 수동으로 갱신하기 위해 자동 기울기 계산 비활성화
+    with torch.no_grad():                                       # 계산그래프를 생성하지 않고 값을 수동으로 갱신하기 위해 자동 기울기 계산 비활성화
         random_tensor = random_tensor - lr*random_tensor.grad   # 수동으로 gradient descent 구현
     if i % 1000 == 0:
         print('Loss at {} = {}'.format(i, loss.item()))
 
 plt.figure()
-plt.imshow(random_tensor.view(100,100).data)            # random_tensor 가 original_image 와 같아졌을 것이다.
+plt.imshow(random_tensor.view(100,100).data)                    # random_tensor 가 original_image 와 같아졌을 것이다.
 
