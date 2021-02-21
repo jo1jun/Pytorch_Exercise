@@ -50,9 +50,9 @@ class Net(nn.Module):
                                                                     # filter 크기가 정수면 정사각형, 배열로 직사각형 지정 가능.
     def forward(self, x):
         x = F.relu(F.max_pool2d(self.conv1(x), 2))                  # max polling(input data, filter 크기)
-        x = F.relu(F.max_pool2d(self.conv2_drop(self.conv2(x)), 2))
-        x = x.view(-1, 320)                                         # FC layer 준비. input size : 320
-        x = F.relu(self.fc1(x))
+        x = F.relu(F.max_pool2d(self.conv2_drop(self.conv2(x)), 2)) # output size : [64, 20, 4, 4] (batch 크기, channel 크기, 가로세)
+        x = x.view(-1, 320)                                         # FC layer 준비. input size : 320 (20 * 4 * 4)
+        x = F.relu(self.fc1(x))                                     # FD layer 는 Conv layer 와 달리 1차원 data 를 batch 처리한다.
         x = F.dropout(x, training=self.training)
         x = self.fc2(x)
         return x
