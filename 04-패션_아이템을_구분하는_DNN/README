@@ -1,0 +1,24 @@
+overfitting_and_regularization.py 에서
+
+transforms.RandomHorizontalFlip() 함수를 추가해서 data 수를 2배 늘렸다고 나와있다.
+
+결론부터 말하면 data 는 2배로 는다고 볼 수 있다.
+
+기존 dataset 에서 절반의 확률로 뒤집는 것인데 왜 2배인지 고민했었다.
+
+함수를 없애고 추가해서
+print(len(train_loader.dataset)) 로 출력해봐도 train set 수는 60000 으로 그대로였다.
+
+책에는 왜 2배인지 설명이 되어있지 않아서 오류임을 가정하고 dataset 끼리 묶어 직접 dataset 을 두배로 만들어 train 해보았다.
+
+original_train 에는 원본 그대로, flip_train 은 data 를 전부 flip 시켰다.
+
+datasets_train = torch.utils.data.ConcatDataset([original_train, flip_train]) 를 활용했고 돌려보니 느려지기만 하고 정확도에서 차이가 없었다.
+
+왜 그런지 찾아보니 reference : https://discuss.pytorch.org/t/data-augmentation-in-pytorch/7925/10
+
+for batch_idx, (data, target) in enumerate(train_loader): 에서 data 를 load 할 때 즉석에서 data 가 변형된다고 한다.
+
+따라서 60000 개 중에서 절반의 확률로 data 가 flip되어서 load 된다. epoch 가 1이라면 원본 데이터 절반, flip 데이터 절반 만 본 것이지만
+
+epoch 가 여러번이라면 전체 data 를 여러번 보고 그 때 마다 데이터가 변형되므로 data 2배의 효과를 볼 수 있는 것이다.
