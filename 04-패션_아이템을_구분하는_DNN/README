@@ -15,7 +15,7 @@ original_train 에는 원본 그대로, flip_train 은 data 를 전부 flip 시�
 
 datasets_train = torch.utils.data.ConcatDataset([original_train, flip_train]) 를 활용했고 돌려보니 느려지기만 하고 정확도에서 차이가 없었다.
 
-왜 그런지 찾아보니 reference : https://discuss.pytorch.org/t/data-augmentation-in-pytorch/7925/10
+왜 그런지 찾아보니 reference : https://discuss.pytorch.org/t/data-augmentation-in-pytorch/7925
 
 for batch_idx, (data, target) in enumerate(train_loader): 에서 data 를 load 할 때 즉석에서 data 가 변형된다고 한다.
 
