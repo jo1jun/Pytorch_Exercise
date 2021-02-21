@@ -22,8 +22,8 @@ train_loader = torch.utils.data.DataLoader(
                    train=True,
                    download=True,
                    transform=transforms.Compose([
-                       transforms.RandomHorizontalFlip(),           # 이미지들을 p 의 확률로 왼쪽 오른쪽을 뒤집는다. (default : p = 0.5)
-                       transforms.ToTensor(),                       
+                       transforms.RandomHorizontalFlip(),           # 이미지들을 p 의 확률로 왼쪽 오른쪽을 뒤집는다. (default : p = 0.5) 따라서 data 2배.
+                       transforms.ToTensor(),                       # data 가 왜 2배가 되는지는 README 참고.
                        transforms.Normalize((0.1307,), (0.3081,))   # 평균과 표준편차로 normalize
                    ])),
     batch_size=BATCH_SIZE, shuffle=True)
