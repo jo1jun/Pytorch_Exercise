@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
 # # 신경망 깊게 쌓아 컬러 데이터셋에 적용하기
 # Convolutional Neural Network (CNN) 을 쌓아올려 딥한 러닝을 해봅시다.
 
@@ -28,10 +25,10 @@ train_loader = torch.utils.data.DataLoader(
                    train=True,
                    download=True,
                    transform=transforms.Compose([
-                       transforms.RandomCrop(32, padding=4),
-                       transforms.RandomHorizontalFlip(),
+                       transforms.RandomCrop(32, padding=4),            # data augmentation function
+                       transforms.RandomHorizontalFlip(),               # data augmentation function
                        transforms.ToTensor(),
-                       transforms.Normalize((0.5, 0.5, 0.5),
+                       transforms.Normalize((0.5, 0.5, 0.5),            # 3 channel : ((평균1, 2, 3), (표편1, 2, 3))
                                             (0.5, 0.5, 0.5))])),
     batch_size=BATCH_SIZE, shuffle=True)
 test_loader = torch.utils.data.DataLoader(
@@ -47,19 +44,19 @@ test_loader = torch.utils.data.DataLoader(
 # ## ResNet 모델 만들기
 
 class BasicBlock(nn.Module):
-    def __init__(self, in_planes, planes, stride=1):
+    def __init__(self, in_planes, planes, stride=1):                # input channel, output channel, stride
         super(BasicBlock, self).__init__()
         self.conv1 = nn.Conv2d(in_planes, planes, kernel_size=3,
                                stride=stride, padding=1, bias=False)
-        self.bn1 = nn.BatchNorm2d(planes)
+        self.bn1 = nn.BatchNorm2d(planes)                           # batch normalization
         self.conv2 = nn.Conv2d(planes, planes, kernel_size=3,
                                stride=1, padding=1, bias=False)
         self.bn2 = nn.BatchNorm2d(planes)
 
         self.shortcut = nn.Sequential()
-        if stride != 1 or in_planes != planes:
-            self.shortcut = nn.Sequential(
-                nn.Conv2d(in_planes, planes,
+        if stride != 1 or in_planes != planes:                      # stride 가 1이 아니라 크기가 작아지거나 / 채널 수가 달라진 경우
+            self.shortcut = nn.Sequential(                          # 크기를 동일하게 하고 더해준다. / 아니라면 그냥 원본 그대로 더함.
+                nn.Conv2d(in_planes, planes,                        # 크기를 같게 한다고 했지만 자세한 설명은 안 나와 있다. 알아보자.
                           kernel_size=1, stride=stride, bias=False),
                 nn.BatchNorm2d(planes)
             )
@@ -67,8 +64,8 @@ class BasicBlock(nn.Module):
     def forward(self, x):
         out = F.relu(self.bn1(self.conv1(x)))
         out = self.bn2(self.conv2(out))
-        out += self.shortcut(x)
-        out = F.relu(out)
+        out += self.shortcut(x)                 # 입력값을 더해주고
+        out = F.relu(out)                       # 활성화 함수 거친다.
         return out
 
 
@@ -91,7 +88,7 @@ class ResNet(nn.Module):
         for stride in strides:
             layers.append(BasicBlock(self.in_planes, planes, stride))
             self.in_planes = planes
-        return nn.Sequential(*layers)
+        return nn.Sequential(*layers)                                   # layers list 를 unpacking 한 후 가변인자 전달.
 
     def forward(self, x):
         out = F.relu(self.bn1(self.conv1(x)))
@@ -114,7 +111,7 @@ scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=50, gamma=0.1)
 
 print(model)
 
-
+# 아래는 이전에 보았던 것과 동일하다. (단, 학습을 실행할 때 scheduler.step() 함수로 learning rate 를 조금 낮추는 단계가 추가)
 # ## 학습하기
 
 def train(model, train_loader, optimizer, epoch):
@@ -156,7 +153,7 @@ def evaluate(model, test_loader):
 # 자, 이제 모든 준비가 끝났습니다. 코드를 돌려서 실제로 훈련이 되는지 확인해봅시다!
 
 for epoch in range(1, EPOCHS + 1):
-    scheduler.step()
+    scheduler.step() # learning rate 를 조금 낮추는 단계
     train(model, train_loader, optimizer, epoch)
     test_loss, test_accuracy = evaluate(model, test_loader)
     
