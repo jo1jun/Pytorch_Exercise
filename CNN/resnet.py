@@ -75,7 +75,7 @@ class ResNet(nn.Module):
         self.in_planes = 16
 
         self.conv1 = nn.Conv2d(3, 16, kernel_size=3,
-                               stride=1, padding=1, bias=False)     # feature map 크기 변화 x / channel 수 증가
+                               stride=1, padding=1, bias=False)     # feature map 크기 변화 x / channel 수 3 -> 16
         self.bn1 = nn.BatchNorm2d(16)
         self.layer1 = self._make_layer(16, 2, stride=1)             # feature map 크기 변화 x / channel 수 변화 x
         self.layer2 = self._make_layer(32, 2, stride=2)             # feature map 크기 절반   / channel 수 두배
