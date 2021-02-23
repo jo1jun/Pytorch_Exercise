@@ -34,7 +34,7 @@ train_loader = torch.utils.data.DataLoader(
     dataset     = trainset,
     batch_size  = BATCH_SIZE,
     shuffle     = True,
-    # num_workers = 2 # GPU 가 없는 내 PC 에서는 이 line 을 없애야 잘 작동한다. Colab 에서는 GPU 하므로 잘 작동.
+    # num_workers = 2 # GPU 가 없는 내 PC 에서는 이 line 을 없애야 잘 작동한다. Colab 에서는 GPU를 사용하므로 잘 작동.
 )
 
 
@@ -43,7 +43,7 @@ class Autoencoder(nn.Module):
         super(Autoencoder, self).__init__()
 
         self.encoder = nn.Sequential(
-            nn.Linear(28*28, 128),      # input feature 는 28*28 개
+            nn.Linear(28*28, 128),      # input feature 는 28*28 (784) 차원
             nn.ReLU(),
             nn.Linear(128, 64),
             nn.ReLU(),
@@ -76,7 +76,7 @@ criterion = nn.MSELoss()                                            # Mean Squar
 # 원본 이미지를 시각화 하기 (첫번째 열)
 view_data = trainset.data[:5].view(-1, 28*28)
 view_data = view_data.type(torch.FloatTensor)/255.                  # (5 * 784) 크기의 0 ~ 1 사이값 tensor
-
+                                                                    # 현재 모델은 0 ~ 1 을 인식하므로 RGB값인 255 로 나누어준다.
 
 
 def train(autoencoder, train_loader):
