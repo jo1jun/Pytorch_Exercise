@@ -109,7 +109,7 @@ optimizer = optim.SGD(model.parameters(), lr=0.1,
 scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=50, gamma=0.1)   # 학습 효율을 높이기 위해 학습률 감소 기법 사용
                                                                             # 학습률이 점차 감소하여 갱신값이 0으로 수렴한다.
                                                                             # 따라서 optima 주변을 배회하지 않고 수렴.
-                                                                            # scheduler 는 epoch 마다 호출되고 stept_size 마다
+                                                                            # scheduler 는 epoch 마다 호출되고 step_size 마다
                                                                             # gamma 가 learning rate 에 곱해진다.
 
 print(model)    # 처음부터 끝까지 모든 계층의 구성을 볼 수 있다.
