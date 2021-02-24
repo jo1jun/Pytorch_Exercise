@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
 # # 오토인코더로 망가진 이미지 복원하기
 # 잡음제거 오토인코더(Denoising Autoencoder)는 2008년 몬트리올 대학에서 발표한 논문
 # ["Extracting and Composing Robust Features with Denoising AutoEncoder"](http://www.cs.toronto.edu/~larocheh/publications/icml-2008-denoising-autoencoders.pdf)
@@ -45,7 +42,8 @@ train_loader = torch.utils.data.DataLoader(
     dataset     = trainset,
     batch_size  = BATCH_SIZE,
     shuffle     = True,
-    num_workers = 2
+    num_workers = 0 # 2인 경우, 나의 pc (CPU , core 4개) 에서 작동하지 않는다. 왜일까? (Colab 에서는 작동) GPU 유무?
+    # num_workds reference : README 참고.
 )
 
 
@@ -84,6 +82,7 @@ optimizer = torch.optim.Adam(autoencoder.parameters(), lr=0.005)
 criterion = nn.MSELoss()
 
 
+# 추가된 함수. 무작위 잡음을 추가한다.
 def add_noise(img):
     noise = torch.randn(img.size()) * 0.2
     noisy_img = img + noise
@@ -106,8 +105,8 @@ def train(autoencoder, train_loader):
         loss.backward()
         optimizer.step()
         
-        avg_loss += loss.item()
-    return avg_loss / len(train_loader)
+        avg_loss += loss.item()         # batch loss 를 누산
+    return avg_loss / len(train_loader) # 평균 오차값 계산 # len(DatasetLoader) = 한 epoch 당 batch 수
 
 
 for epoch in range(1, EPOCH+1):
@@ -130,9 +129,9 @@ testset = datasets.FashionMNIST(
 sample_data = testset.data[0].view(-1, 28*28)
 sample_data = sample_data.type(torch.FloatTensor)/255.
 
-# 이미지를 add_noise로 오염시킨 후, 모델에 통과시킵니다.
+# 이미지를 add_noise로 오염시킨 후, 모델에 통과시킵니다. (forward)
 original_x = sample_data[0]
-noisy_x = add_noise(original_x).to(DEVICE)
+noisy_x = add_noise(original_x).to(DEVICE)  # 학습 시 사용했던 잡음을 더하고 forward 해서 이미지 복원.
 _, recovered_x = autoencoder(noisy_x)
 
 
@@ -156,4 +155,3 @@ a[2].set_title('Recovered')
 a[2].imshow(recovered_img, cmap='gray')
 
 plt.show()
-
