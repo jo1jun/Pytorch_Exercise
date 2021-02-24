@@ -1,3 +1,7 @@
 # basic_autoencoder.py 에서 optimizer 로 Adam 을 사용하였다.
 # DL1 에서 학습했던 내용으로 복습 해보자!
 # https://github.com/jo1jun/Deep-Learning-from-Scratch1/blob/main/common/optimizer.py
+
+# DataLoader 에서 num_workers?
+# To avoid blocking computation code with data loading, PyTorch provides an easy switch to perform multi-process data loading by simply setting the argument num_workers to a positive integer.
+# reference : https://pytorch.org/docs/stable/data.html
