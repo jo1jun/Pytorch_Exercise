@@ -74,23 +74,24 @@ autoencoder = Autoencoder().to(DEVICE)
 optimizer = torch.optim.Adam(autoencoder.parameters(), lr=0.005)    # DL1 에서 공부한 Adam. README 참고.
 criterion = nn.MSELoss()                                            # Mean Squared Error Loss
 # nn.MSELoss(reduction='mean') : default 로, 한 배치에서 원소별 오차제곱의 전체 평균.
-# nn.MSELoss(reduction='sum') : 한 배치에서 원소별 오차제곱의 전체 합. (위와 같으려면 feature 수*batch 크기 로 나누면 된다.)
+# nn.MSELoss(reduction='sum') : 한 배치에서 원소별 오차제곱의 전체 합. 
+#                               (위와 같으려면 (feature 수)*(batch 크기) 로 나누면 된다.)
 
 
 # 원본 이미지를 시각화 하기 (첫번째 열)
-view_data = trainset.data[:5].view(-1, 28*28)
-view_data = view_data.type(torch.FloatTensor)/255.                  # (5 * 784) 크기의 0 ~ 1 사이값 tensor
-                                                                    # 현재 모델은 0 ~ 1 을 인식하므로 RGB값인 255 로 나누어준다.
+view_data = trainset.data[:5].view(-1, 28*28)       # (5 * 784) 크기의 0 ~ 1 사이값 tensor
+view_data = view_data.type(torch.FloatTensor)/255.  # 현재 모델은 0 ~ 1 을 인식하므로 RGB값인 255 로 나누어준다.
+                                                   
 def train(autoencoder, train_loader):
     autoencoder.train()
     for step, (x, label) in enumerate(train_loader):
         x = x.view(-1, 28*28).to(DEVICE)
-        y = x.view(-1, 28*28).to(DEVICE)
-        label = label.to(DEVICE)
+        y = x.view(-1, 28*28).to(DEVICE)                # x 와 y 가 동일하다.
+        label = label.to(DEVICE)                        # autoencoder 는 비지도 학습이므로 label 이 필요 없다. (없어도 되는 line)
 
         encoded, decoded = autoencoder(x)               # forward
 
-        loss = criterion(decoded, y)                    # cacluate loss (복원과 원본 사이의 오차제곱합)
+        loss = criterion(decoded, y)                    # cacluate loss (복원과 원본(y = x) 사이의 오차제곱합)
         optimizer.zero_grad()
         loss.backward()                                 # backward
         optimizer.step()                                # update
@@ -109,10 +110,10 @@ for epoch in range(1, EPOCH+1):
     for i in range(5):
         img = np.reshape(view_data.data.numpy()[i],(28, 28))                # 원본 이미지
         a[0][i].imshow(img, cmap='gray')                                    # 1행에 원본 이미지 넣기
-        a[0][i].set_xticks(()); a[0][i].set_yticks(())                      # set_xticks, set_yticks 에 빈 튜플을 넣어 눈금자 표시를 없앤다.
+        a[0][i].set_xticks(()); a[0][i].set_yticks(())                      # ~ticks() 에 빈 튜플을 넣어 눈금자 표시를 없앤다.
 
     for i in range(5):  
-        img = np.reshape(decoded_data.to("cpu").data.numpy()[i], (28, 28))  # 복원 이미지
+        img = np.reshape(decoded_data.to("cpu").data.numpy()[i], (28, 28))  # 복원 이미지를 CPU 로 불러와 시각화 작업.
         a[1][i].imshow(img, cmap='gray')                                    # 2행에 원본 이미지 넣기
         a[1][i].set_xticks(()); a[1][i].set_yticks(())
     plt.show()
@@ -124,7 +125,7 @@ for epoch in range(1, EPOCH+1):
 view_data = trainset.data[:200].view(-1, 28*28)         # 200 개의 sample 뽑기
 view_data = view_data.type(torch.FloatTensor)/255.
 test_x = view_data.to(DEVICE)
-encoded_data, _ = autoencoder(test_x)                   # 200 개의 압축된 sample get
+encoded_data, _ = autoencoder(test_x)                   # forward 하여 200 개의 압축된 sample get
 encoded_data = encoded_data.to("cpu")                   # GPU 에서 학습했었다면 CPU 로 불러와 시각화 작업.
 
 

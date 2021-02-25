@@ -1,6 +1,7 @@
 # # 오토인코더로 망가진 이미지 복원하기
 # 잡음제거 오토인코더(Denoising Autoencoder)는 2008년 몬트리올 대학에서 발표한 논문
-# ["Extracting and Composing Robust Features with Denoising AutoEncoder"](http://www.cs.toronto.edu/~larocheh/publications/icml-2008-denoising-autoencoders.pdf)
+# ["Extracting and Composing Robust Features with Denoising AutoEncoder"]
+# (http://www.cs.toronto.edu/~larocheh/publications/icml-2008-denoising-autoencoders.pdf)
 # 에서 처음 제안되었습니다.
 # 앞서 오토인코더는 일종의 "압축"을 한다고 했습니다.
 # 그리고 압축은 데이터의 특성에 중요도로 우선순위를 매기고
@@ -43,8 +44,8 @@ train_loader = torch.utils.data.DataLoader(
     batch_size  = BATCH_SIZE,
     shuffle     = True,
     num_workers = 0 # 2인 경우, 나의 pc (CPU , core 4개) 에서 작동하지 않는다. 왜일까? (Colab 에서는 작동) GPU 유무?
-    # num_workds reference : README 참고.
-)
+)                   # num_workds reference : README 참고.
+
 
 
 class Autoencoder(nn.Module):
@@ -131,7 +132,7 @@ sample_data = sample_data.type(torch.FloatTensor)/255.
 
 # 이미지를 add_noise로 오염시킨 후, 모델에 통과시킵니다. (forward)
 original_x = sample_data[0]
-noisy_x = add_noise(original_x).to(DEVICE)  # 학습 시 사용했던 잡음을 더하고 forward 해서 이미지 복원.
+noisy_x = add_noise(original_x).to(DEVICE)  # 학습 시 사용했던 잡음을 더하고 forward 해서 압축 & 복원.
 _, recovered_x = autoencoder(noisy_x)
 
 
