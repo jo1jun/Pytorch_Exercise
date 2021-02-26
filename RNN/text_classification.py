@@ -69,17 +69,22 @@ class BasicGRU(nn.Module):
         self.hidden_dim = hidden_dim                                            # 은닉 벡터의 차원
         self.dropout = nn.Dropout(dropout_p)
         self.gru = nn.GRU(embed_dim, self.hidden_dim,                           # RNN 대신 RNN 의 단점을 보완한 GRU 사용.
-                          num_layers=self.n_layers,
+                          num_layers=self.n_layers,                             
                           batch_first=True)
         self.out = nn.Linear(self.hidden_dim, n_classes)                        # 마지막은 역시 CNN 처럼 Linear 로 클래스에 대한 예측을 출력
 
     def forward(self, x):
-        x = self.embed(x)                                                       # x.shape : [64, ~, 128] (batch 크기, token 수, embed_dim) 
-        h_0 = self._init_state(batch_size=x.size(0))                    
-        x, _ = self.gru(x, h_0)  # [i, b, h]
-        h_t = x[:,-1,:]
-        self.dropout(h_t)
-        logit = self.out(h_t)  # [b, h] -> [b, o]
+        x = self.embed(x)                                                       # x.shape : [64, ~, 128] (batch 크기, token 수, embed_dim) (token 수 = batch 로 묶인 입력 x 들의 길이)
+        h_0 = self._init_state(batch_size=x.size(0))                            # 첫번째 은닉벡터 생성 / h_o.shape : [1, 64, 256] (은닉 벡터 층, batch 크기, hidden_dim)        
+        
+        x, _ = self.gru(x, h_0)                                                 # 은닉 벡터들이 시계열 배열 형태로 반환된다. / x.shape : [64, ~, 256] (batch 크기, token 수, hidden_dim)
+        h_t = x[:,-1,:]                                                         # 마지막 토큰에 해당하는 은닉벡터 추출. 즉, 리뷰를 전부 압축한 은닉벡터 / h_t.shape : [64, 256]
+        
+        # x, h_t = self.gru(x, h_0)                                             # 바로 위 두 줄을 이 두 줄로 대체 가능하다.
+        # h_t = h_t.squeeze()                                                   # 두 번째 반환값은 마지막 압축 벡터(n_layers 가 추가됨) 이다. [1, 64, 256] -> squeeze -> [64, 256]
+        
+        self.dropout(h_t)                                                       # drop out
+        logit = self.out(h_t)                                                   # [64, 256] -> FC layer -> [64, 2]
         return logit
     
     def _init_state(self, batch_size=1):
@@ -90,7 +95,7 @@ class BasicGRU(nn.Module):
 
 def train(model, optimizer, train_iter):
     model.train()
-    for b, batch in enumerate(train_iter):
+    for b, batch in enumerate(train_iter):                                      # index 와 batch 단위의 data를 반환. (batch.text , batch.label 로 data 에 접근할 수 있다.)
         x, y = batch.text.to(DEVICE), batch.label.to(DEVICE)                    # x.shape = (batch 크기, token 수)
         y.data.sub_(1)  # 레이블 값을 0과 1로 변환                               # text 수는 원래 제각각 인데 배치로 묶어서 배치마다 token 수가 동일해짐
         optimizer.zero_grad()
@@ -105,14 +110,14 @@ def evaluate(model, val_iter):
     """evaluate model"""
     model.eval()
     corrects, total_loss = 0, 0
-    for batch in val_iter:
+    for batch in val_iter:                                                      # index 가 필요 없다면 enumerate 말고 그냥 iterator 써도 됨. 위의 train module 에서도 생략해도 된다.
         x, y = batch.text.to(DEVICE), batch.label.to(DEVICE)
         y.data.sub_(1) # 레이블 값을 0과 1로 변환
         logit = model(x)
-        loss = F.cross_entropy(logit, y, reduction='sum')
+        loss = F.cross_entropy(logit, y, reduction='sum')                       # 한 배치 내에서의 평균이 아니라 전부 합.
         total_loss += loss.item()
-        corrects += (logit.max(1)[1].view(y.size()).data == y.data).sum()
-    size = len(val_iter.dataset)
+        corrects += (logit.max(1)[1].view(y.size()).data == y.data).sum()       # max 로 행 기준(1) & index[1] / 예측 값과 실제 값이 일치하는 경우를 count.
+    size = len(val_iter.dataset)                                                
     avg_loss = total_loss / size
     avg_accuracy = 100.0 * corrects / size
     return avg_loss, avg_accuracy
