@@ -36,7 +36,7 @@ class Seq2Seq(nn.Module):
     def forward(self, inputs, targets):
         # 인코더에 들어갈 입력
         initial_state = self._init_state()                      # 첫번째 은닉벡터 생성 / inital_state.shape : [1, 1, 16]
-        embedding = self.embedding(inputs).unsqueeze(1)         # charater embedding / embedding.shape : [5, 16] -> [5, 1, 16]
+        embedding = self.embedding(inputs).unsqueeze(1)         # charater embedding / embedding.shape : [5] (origin) -> [5, 16] (embeded) -> [5, 1, 16]
                                                                 # embedding.shape = [seq_len, batch_size, embedding_size]
         
         # 인코더 (Encoder)
