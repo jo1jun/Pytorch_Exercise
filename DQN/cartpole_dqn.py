@@ -94,7 +94,7 @@ for e in range(1, EPISODES+1):
     state = env.reset()                                         # 게임을 시작할 때마다 초기화된 상태를 불러온다.
     steps = 0
     while True:                                                 # 게임이 끝날 때까지 무한 반복
-        env.render()                                            # 게임화면 띄우
+        env.render()                                            # 게임화면 띄우기
         state = torch.FloatTensor([state])                      # 현재 상태를 텐서로 만듦
         action = agent.act(state)                               # act 에 입력하여 현재 할 행동을 return
         next_state, reward, done, _ = env.step(action.item())   # 행동을 step에 입력하여 행동에 따른 다음 상태, 보상, 게임종료여부 return.
